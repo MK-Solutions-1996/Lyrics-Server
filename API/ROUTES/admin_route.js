@@ -21,7 +21,7 @@ router.post('/signin', CheckAPI, (req, res, next) => {
     AdminController
         .signin_admin(body)
         .then(result => {
-            res.status(result.status).json(result.message);
+            res.status(result.status).json(result.data);
         })
         .catch(err => {
             res.status(err.status).json(err.error);

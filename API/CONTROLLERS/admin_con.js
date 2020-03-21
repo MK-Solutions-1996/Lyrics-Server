@@ -42,17 +42,17 @@ exports.signin_admin = (body) => {
 
         Admin.find({ username: username })
             .exec()
-            .then(result => {
-                if (result.length === 0) {
+            .then(adminData => {
+                if (adminData.length === 0) {
                     reject({ status: 404, error: common_error });
                 }
                 else {
-                    const admin_password = result[0].password;
+                    const admin_password = adminData[0].password;
                     bcrypt
                         .compare(password, admin_password)
                         .then(result => {
                             if (result) {
-                                resolve({ status: 200, message: 'success' });
+                                resolve({ status: 200, data: adminData[0] });
                             }
                             else {
                                 reject({ status: 404, error: common_error });
