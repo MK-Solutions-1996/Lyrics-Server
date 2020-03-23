@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Song = require('../MODELS/song_mod');
 
+
 exports.save_song = (body) => {
     return new Promise((resolve, reject) => {
         const song = new Song({
@@ -108,6 +109,10 @@ exports.update_song = (id, body) => {
     });
 }
 
+
+
+
+
 exports.remove_song = (id) => {
     return new Promise((resolve, reject) => {
         Song
@@ -129,3 +134,4 @@ exports.remove_song = (id) => {
 }
 
 //search songs should be implemented
+

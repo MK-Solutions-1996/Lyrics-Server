@@ -21,11 +21,20 @@ const artist_schema = mongoose.Schema({
         required: [true, 'Required']
     },
 
+
+    imagePath: {
+        type: String,
+        required: [true, 'Required'],
+        unique: true
+    },
+
     image: {
         type: String,
         required: [true, 'Required'],
         unique: true
-    }
+    },
+
+
 });
 
 artist_schema.plugin(uniqueValidator, { message: '{VALUE} is already exists' });
