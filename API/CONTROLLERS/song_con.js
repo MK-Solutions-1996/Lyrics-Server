@@ -8,6 +8,7 @@ exports.save_song = (body) => {
             sinhalaTitle: body.sinhalaTitle,
             singlishTitle: body.singlishTitle,
             artistId: body.artistId,
+            artistName: body.artistName,
             artist: {
                 method: 'GET',
                 url: process.env.BASE_URL + '/artist/' + body.artistId
