@@ -15,7 +15,8 @@ exports.save_song = (body) => {
             },
             categories: body.categories,
             song: body.song,
-            likes: body.likes
+            likes: body.likes,
+            type: body.type
         });
 
         song
@@ -39,7 +40,7 @@ exports.find_songs = () => {
     return new Promise((resolve, reject) => {
         Song
             .find()
-            .select('_id sinhalaTitle artistId singlishTitle artist categories song likes')
+            .select('_id sinhalaTitle artistId singlishTitle artist categories song likes type')
             .exec()
             .then(result => {
                 if (result.length === 0) {
@@ -60,7 +61,7 @@ exports.find_song_by_id = (id) => {
     return new Promise((resolve, reject) => {
         Song
             .findById({ _id: id })
-            .select('_id sinhalaTitle artistId singlishTitle artist categories song likes')
+            .select('_id sinhalaTitle artistId singlishTitle artist categories song likes type')
             .exec()
             .then(result => {
                 if (result) {

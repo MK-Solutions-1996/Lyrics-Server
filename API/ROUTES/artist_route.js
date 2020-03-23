@@ -2,11 +2,25 @@ const express = require('express');
 const router = express.Router();
 const ArtistController = require('../CONTROLLERS/artist_con');
 const CheckApi = require('../MIDDLEWARES/check_api');
+const multer = require('multer');
 
-router.post('/', CheckApi, (req, res, next) => {
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './uploads/');
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
+    }
+});
+
+const upload = multer({ storage: storage });
+
+router.post('/', [CheckApi, upload.single('image')], (req, res, next) => {
     const body = req.body;
+    const file = req.file;
     ArtistController
-        .save_artist(body)
+        .save_artist(body, file)
         .then(result => {
             res.status(result.status).json(result.message);
         })

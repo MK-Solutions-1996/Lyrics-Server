@@ -8,6 +8,10 @@ const router = require('./API/router');
 
 
 const app = express();
+
+
+app.use(express.static('uploads'));
+
 app.use(bodyparser.urlencoded({ extended: false }));
 app.use(bodyparser.json());
 app.use(cors());

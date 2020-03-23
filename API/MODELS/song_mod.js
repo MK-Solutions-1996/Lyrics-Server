@@ -50,6 +50,11 @@ const songSchema = mongoose.Schema({
     likes: {
         type: Number,
         default: 0
+    },
+
+    type: {
+        type: String,
+        required: [true, 'Required'],
     }
 });
 

@@ -1,13 +1,14 @@
 const mongoose = require('mongoose');
 const Artist = require('../MODELS/artist_mod');
 
-exports.save_artist = (body) => {
+exports.save_artist = (body, file) => {
     return new Promise((resolve, reject) => {
         const artist = new Artist({
             _id: mongoose.Types.ObjectId(),
             sinhalaName: body.sinhalaName,
             singlishName: body.singlishName,
-            period: body.period
+            period: body.period,
+            image: process.env.BASE_URL + '/' + file.originalname
         });
 
         artist
@@ -32,7 +33,7 @@ exports.find_artist = () => {
     return new Promise((resolve, reject) => {
         Artist
             .find()
-            .select('_id sinhalaName singlishName period')
+            .select('_id sinhalaName singlishName period image')
             .exec()
             .then(result => {
                 if (result.length === 0) {
@@ -53,7 +54,7 @@ exports.find_artist_by_id = (id) => {
     return new Promise((resolve, reject) => {
         Artist
             .findById({ _id: id })
-            .select('_id sinhalaName singlishName period')
+            .select('_id sinhalaName singlishName period image')
             .exec()
             .then(result => {
                 if (result) {
