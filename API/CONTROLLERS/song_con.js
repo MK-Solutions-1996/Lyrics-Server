@@ -7,6 +7,7 @@ exports.save_song = (body) => {
             _id: mongoose.Types.ObjectId(),
             sinhalaTitle: body.sinhalaTitle,
             singlishTitle: body.singlishTitle,
+            artistId: body.artistId,
             artist: {
                 method: 'GET',
                 url: process.env.BASE_URL + '/artist/' + body.artistId
@@ -37,7 +38,7 @@ exports.find_songs = () => {
     return new Promise((resolve, reject) => {
         Song
             .find()
-            .select('_id sinhalaTitle singlishTitle artist categories song likes')
+            .select('_id sinhalaTitle artistId singlishTitle artist categories song likes')
             .exec()
             .then(result => {
                 if (result.length === 0) {
@@ -58,7 +59,7 @@ exports.find_song_by_id = (id) => {
     return new Promise((resolve, reject) => {
         Song
             .findById({ _id: id })
-            .select('_id sinhalaTitle singlishTitle artist categories song likes')
+            .select('_id sinhalaTitle artistId singlishTitle artist categories song likes')
             .exec()
             .then(result => {
                 if (result) {

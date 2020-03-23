@@ -16,6 +16,11 @@ const songSchema = mongoose.Schema({
         unique: true
     },
 
+    artistId: {
+        type: String,
+        required: [true, 'Required'],
+    },
+
     artist: {
         method: {
             type: String,
