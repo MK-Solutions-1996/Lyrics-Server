@@ -44,12 +44,7 @@ exports.find_songs = () => {
             .select('_id sinhalaTitle artistId singlishTitle artist categories song likes type')
             .exec()
             .then(result => {
-                if (result.length === 0) {
-                    reject({ status: 404, error: 'No data found' });
-                }
-                else {
-                    resolve({ status: 200, data: result });
-                }
+                resolve({ status: 200, data: result });
             })
             .catch(() => {
                 reject({ status: 500, error: 'Server error' });

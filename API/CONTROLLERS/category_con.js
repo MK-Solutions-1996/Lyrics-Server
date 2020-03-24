@@ -32,12 +32,7 @@ exports.find_categories = () => {
             .select('_id name')
             .exec()
             .then(result => {
-                if (result.length === 0) {
-                    reject({ status: 404, error: 'No data found' });
-                }
-                else {
-                    resolve({ status: 201, data: result });
-                }
+                resolve({ status: 201, data: result });
             })
             .catch(() => {
                 reject({ status: 500, error: 'Server error' });
