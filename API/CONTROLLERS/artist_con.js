@@ -3,10 +3,14 @@ const Artist = require('../MODELS/artist_mod');
 const fs = require('fs');
 
 
+
+/* 
+    Check the image file is exist, If so save the data to database as well as image file
+    will be saved to the 'uploads' folder in API.
+*/
+
 exports.save_artist = (body, file) => {
     return new Promise((resolve, reject) => {
-
-
         if (file) {
             const artist = new Artist({
                 _id: mongoose.Types.ObjectId(),
@@ -74,7 +78,10 @@ exports.find_artist_by_id = (id) => {
     });
 }
 
-
+/* 
+    This function will be use when updating,
+    If new image file added by the update process, Existing file will be deleted from the API and new file will be added.
+*/
 const remove_image_in_update = (id, update_image_path) => {
     return new Promise((resolve, reject) => {
         Artist
@@ -102,7 +109,10 @@ const remove_image_in_update = (id, update_image_path) => {
 }
 
 
-
+/* 
+    If the image file is exists in request, update the image file as well, 
+    if the image image file is not in request other data will be updated.
+*/
 exports.update_artist = (id, body, file) => {
     return new Promise((resolve, reject) => {
 
@@ -158,6 +168,10 @@ exports.update_artist = (id, body, file) => {
 }
 
 
+/* 
+    This function will be use when deleting,
+    Existing file will be deleted from the API.
+*/
 const remove_image_in_delete = (id) => {
     return new Promise((resolve, reject) => {
         Artist

@@ -37,5 +37,5 @@ const artist_schema = mongoose.Schema({
 
 });
 
-artist_schema.plugin(uniqueValidator, { message: '{VALUE} is already exists' });
+artist_schema.plugin(uniqueValidator, { message: 'Already exists' });
 module.exports = mongoose.model('Artist', artist_schema);
