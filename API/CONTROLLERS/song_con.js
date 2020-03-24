@@ -41,7 +41,7 @@ exports.find_songs = () => {
     return new Promise((resolve, reject) => {
         Song
             .find()
-            .select('_id sinhalaTitle artistId singlishTitle artist categories song likes type')
+            .select('_id sinhalaTitle artistId singlishTitle artist categories song likes type artistName')
             .exec()
             .then(result => {
                 resolve({ status: 200, data: result });
@@ -57,7 +57,7 @@ exports.find_song_by_id = (id) => {
     return new Promise((resolve, reject) => {
         Song
             .findById({ _id: id })
-            .select('_id sinhalaTitle artistId singlishTitle artist categories song likes type')
+            .select('_id sinhalaTitle artistId singlishTitle artist categories song likes type artistName')
             .exec()
             .then(result => {
                 if (result) {
