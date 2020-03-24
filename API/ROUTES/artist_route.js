@@ -52,11 +52,12 @@ router.get('/:id', CheckApi, (req, res, next) => {
         });
 });
 
-router.patch('/:id', CheckApi, (req, res, next) => {
+router.patch('/:id', [CheckApi, upload.single('image')], (req, res, next) => {
     const id = req.params.id;
     const body = req.body;
+    const file = req.file;
     ArtistController
-        .update_artist(id, body)
+        .update_artist(id, body, file)
         .then(result => {
             res.status(result.status).json(result.message);
         })
