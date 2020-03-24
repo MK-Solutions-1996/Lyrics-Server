@@ -39,12 +39,7 @@ exports.find_artist = () => {
             .select('_id sinhalaName singlishName period image imagePath')
             .exec()
             .then(result => {
-                if (result.length === 0) {
-                    reject({ status: 404, error: 'No data found' });
-                }
-                else {
-                    resolve({ status: 200, data: result });
-                }
+                resolve({ status: 200, data: result });
             })
             .catch(() => {
                 reject({ status: 500, error: 'Server error' });
