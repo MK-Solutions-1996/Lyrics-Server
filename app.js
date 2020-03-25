@@ -49,7 +49,8 @@ mongoose.connect(process.env.MONGO_CONNECTION,
 
 app.use('/', router);
 
-app.listen(4000, () => {
-    console.log("***Server listenning to port 4000***");
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+    console.log(`***Server listening on port ${PORT}***`);
 });
 
