@@ -172,8 +172,6 @@ exports.send_verification_code = () => {
       text: CODE
     };
 
-    console.log("mailOptions", mailOptions);
-
     transporter
       .sendMail(mailOptions)
       .then(() => {
@@ -190,8 +188,6 @@ exports.forgot_password = body => {
     const verification_code = body.verificationCode;
     const new_password = body.newPassword;
     const confirm_password = body.confirmPassword;
-
-    console.log("CODE:", CODE);
 
     if (verification_code === CODE) {
       if (new_password === confirm_password) {
