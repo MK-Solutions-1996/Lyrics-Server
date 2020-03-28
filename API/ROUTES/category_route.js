@@ -3,7 +3,7 @@ const router = express.Router();
 const CategoryController = require("../CONTROLLERS/category_con");
 const CheckAPI = require("../MIDDLEWARES/check_api");
 
-router.post("/", (req, res, next) => {
+router.post("/", CheckAPI, (req, res, next) => {
   const body = req.body;
   CategoryController.save_category(body)
     .then(result => {
@@ -14,7 +14,7 @@ router.post("/", (req, res, next) => {
     });
 });
 
-router.get("/", (req, res, next) => {
+router.get("/", CheckAPI, (req, res, next) => {
   CategoryController.find_categories()
     .then(result => {
       res.status(result.status).json(result.data);
@@ -24,7 +24,7 @@ router.get("/", (req, res, next) => {
     });
 });
 
-router.delete("/:id", (req, res, next) => {
+router.delete("/:id", CheckAPI, (req, res, next) => {
   const id = req.params.id;
   CategoryController.remove_category(id)
     .then(result => {

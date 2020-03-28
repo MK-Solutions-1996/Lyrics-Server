@@ -15,7 +15,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-router.post("/", upload.single("image"), (req, res, next) => {
+router.post("/", [CheckApi, upload.single("image")], (req, res, next) => {
   const body = req.body;
   const file = req.file;
   ArtistController.save_artist(body, file)
@@ -27,7 +27,7 @@ router.post("/", upload.single("image"), (req, res, next) => {
     });
 });
 
-router.get("/", (req, res, next) => {
+router.get("/", CheckApi, (req, res, next) => {
   ArtistController.find_artist()
     .then(result => {
       res.status(result.status).json(result.data);
@@ -37,7 +37,7 @@ router.get("/", (req, res, next) => {
     });
 });
 
-router.get("/:id", (req, res, next) => {
+router.get("/:id", CheckApi, (req, res, next) => {
   const id = req.params.id;
   ArtistController.find_artist_by_id(id)
     .then(result => {
@@ -48,7 +48,7 @@ router.get("/:id", (req, res, next) => {
     });
 });
 
-router.patch("/:id", upload.single("image"), (req, res, next) => {
+router.patch("/:id", [CheckApi, upload.single("image")], (req, res, next) => {
   const id = req.params.id;
   const body = req.body;
   const file = req.file;
@@ -61,7 +61,7 @@ router.patch("/:id", upload.single("image"), (req, res, next) => {
     });
 });
 
-router.delete("/:id", (req, res, next) => {
+router.delete("/:id", CheckApi, (req, res, next) => {
   const id = req.params.id;
   ArtistController.romove_artist(id)
     .then(result => {

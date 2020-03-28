@@ -3,7 +3,7 @@ const router = express.Router();
 const AdminController = require("../CONTROLLERS/admin_con");
 const CheckAPI = require("../MIDDLEWARES/check_api");
 
-router.post("/", (req, res, next) => {
+router.post("/", CheckAPI, (req, res, next) => {
   const body = req.body;
   AdminController.save_admin(body)
     .then(result => {
@@ -14,7 +14,7 @@ router.post("/", (req, res, next) => {
     });
 });
 
-router.post("/signin", (req, res, next) => {
+router.post("/signin", CheckAPI, (req, res, next) => {
   const body = req.body;
   AdminController.signin_admin(body)
     .then(result => {
@@ -25,7 +25,7 @@ router.post("/signin", (req, res, next) => {
     });
 });
 
-router.get("/", (req, res, next) => {
+router.get("/", CheckAPI, (req, res, next) => {
   AdminController.find_admin()
     .then(result => {
       res.status(result.status).json(result.data);
@@ -35,7 +35,7 @@ router.get("/", (req, res, next) => {
     });
 });
 
-router.patch("/", (req, res, next) => {
+router.patch("/", CheckAPI, (req, res, next) => {
   const body = req.body;
   AdminController.update_admin_password(body)
     .then(result => {
@@ -46,7 +46,7 @@ router.patch("/", (req, res, next) => {
     });
 });
 
-router.get("/verification", (req, res, next) => {
+router.get("/verification", CheckAPI, (req, res, next) => {
   AdminController.send_verification_code()
     .then(result => {
       res.status(result.status).json(result.message);
@@ -56,7 +56,7 @@ router.get("/verification", (req, res, next) => {
     });
 });
 
-router.patch("/forgot", (req, res, next) => {
+router.patch("/forgot", CheckAPI, (req, res, next) => {
   const body = req.body;
   AdminController.forgot_password(body)
     .then(result => {
