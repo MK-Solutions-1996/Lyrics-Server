@@ -1,4 +1,3 @@
 {
-    "appService.defaultWebAppToDeploy": "/subscriptions/551482f0-5523-4ccf-bb57-028ab5d55fd0/resourceGroups/Lyrics-Server-Resouce-Group/providers/Microsoft.Web/sites/Lyrics-Server",
     "appService.deploySubpath": ""
 }
