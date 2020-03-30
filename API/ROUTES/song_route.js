@@ -2,10 +2,23 @@ const express = require("express");
 const router = express.Router();
 const SongController = require("../CONTROLLERS/song_con");
 const CheckAPI = require("../MIDDLEWARES/check_api");
+const multer = require("multer");
 
-router.post("/", CheckAPI, (req, res, next) => {
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, "./audios/");
+  },
+  filename: function(req, file, cb) {
+    cb(null, file.originalname);
+  }
+});
+
+const upload = multer({ storage: storage });
+
+router.post("/", [CheckAPI, upload.single("audio")], (req, res, next) => {
   const body = req.body;
-  SongController.save_song(body)
+  const file = req.file;
+  SongController.save_song(body, file)
     .then(result => {
       res.status(result.status).json(result.message);
     })
@@ -35,10 +48,11 @@ router.get("/:id", CheckAPI, (req, res, next) => {
     });
 });
 
-router.patch("/:id", CheckAPI, (req, res, next) => {
+router.patch("/:id", [CheckAPI, upload.single("audio")], (req, res, next) => {
   const id = req.params.id;
   const body = req.body;
-  SongController.update_song(id, body)
+  const file = req.file;
+  SongController.update_song(id, body, file)
     .then(result => {
       res.status(result.status).json(result.message);
     })

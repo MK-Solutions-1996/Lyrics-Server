@@ -1,6 +1,19 @@
 const mongoose = require("mongoose");
 var uniqueValidator = require("mongoose-unique-validator");
 
+const artistArray = mongoose.Schema({
+  _id: false,
+
+  artistId: {
+    type: String,
+    required: [true, "Required"]
+  },
+  artistName: {
+    type: String,
+    required: [true, "Required"]
+  }
+});
+
 const songSchema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
 
@@ -14,27 +27,6 @@ const songSchema = mongoose.Schema({
     type: String,
     required: [true, "Required"],
     unique: true
-  },
-
-  artistName: {
-    type: Array,
-    required: [true, "Required"]
-  },
-
-  artistId: {
-    type: Array,
-    required: [true, "Required"]
-  },
-
-  artist: {
-    method: {
-      type: String,
-      required: [true, "Required"]
-    },
-    url: {
-      type: String,
-      required: [true, "Required"]
-    }
   },
 
   categories: {
@@ -55,9 +47,33 @@ const songSchema = mongoose.Schema({
   type: {
     type: String,
     required: [true, "Required"]
+  },
+
+  artist: [artistArray],
+
+  audio: {
+    audioPath: {
+      type: String,
+      default: "default"
+    },
+
+    audio: {
+      type: String,
+      default: "default"
+    },
+
+    audioAvailability: {
+      type: Boolean,
+      required: [true, "Required"]
+    },
+
+    audioName: {
+      type: String,
+      unique: true
+    }
   }
 });
 
-songSchema.plugin(uniqueValidator, { message: "{VALUE} is already exists" });
+songSchema.plugin(uniqueValidator, { message: "Already exists" });
 
 module.exports = mongoose.model("Song", songSchema);
