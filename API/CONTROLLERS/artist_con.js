@@ -44,7 +44,7 @@ exports.save_artist = (body, file) => {
       } else {
         reject({
           status: 422,
-          error: { image: { imageName: { message: "Required" } } }
+          error: { imageName: { message: "Required" } }
         });
       }
     } else {

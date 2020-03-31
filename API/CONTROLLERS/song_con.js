@@ -43,7 +43,7 @@ exports.save_song = (body, file) => {
       } else {
         reject({
           status: 422,
-          error: { audio: { audioName: { message: "Required" } } }
+          error: { audioName: { message: "Required" } }
         });
       }
     } else {
@@ -152,7 +152,7 @@ exports.update_song = (id, body, file) => {
           } else {
             reject({
               status: 422,
-              error: { audio: { audioName: { message: "Required" } } }
+              error: { audioName: { message: "Required" } }
             });
           }
         } else {
