@@ -1,18 +1,18 @@
 const mongoose = require("mongoose");
 var uniqueValidator = require("mongoose-unique-validator");
 
-const artistArray = mongoose.Schema({
-  _id: false,
+// const artistArray = mongoose.Schema({
+//   _id: false,
 
-  artistId: {
-    type: String,
-    required: [true, "Required"]
-  },
-  artistName: {
-    type: String,
-    required: [true, "Required"]
-  }
-});
+//   artistId: {
+//     type: String,
+//     required: [true, "Required"]
+//   },
+//   artistName: {
+//     type: String,
+//     required: [true, "Required"]
+//   }
+// });
 
 const songSchema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
@@ -49,7 +49,10 @@ const songSchema = mongoose.Schema({
     required: [true, "Required"]
   },
 
-  artist: [artistArray],
+  artist: {
+    type: Array,
+    required: [true, "Required"]
+  },
 
   audio: {
     audioPath: {
