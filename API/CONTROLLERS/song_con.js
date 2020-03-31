@@ -41,7 +41,10 @@ exports.save_song = (body, file) => {
         });
         saving_function(song);
       } else {
-        reject({ status: 422, error: { audio: { message: "Required" } } });
+        reject({
+          status: 422,
+          error: { audio: { audioName: { message: "Required" } } }
+        });
       }
     } else {
       const song = new Song({
@@ -147,7 +150,10 @@ exports.update_song = (id, body, file) => {
             };
             updatin_function(id, song, AUDIO_PATH);
           } else {
-            reject({ status: 422, error: { audio: { message: "Required" } } });
+            reject({
+              status: 422,
+              error: { audio: { audioName: { message: "Required" } } }
+            });
           }
         } else {
           const song = {

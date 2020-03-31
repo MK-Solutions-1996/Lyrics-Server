@@ -42,7 +42,10 @@ exports.save_artist = (body, file) => {
         });
         saving_function(artist);
       } else {
-        reject({ status: 422, error: { image: { message: "Required" } } });
+        reject({
+          status: 422,
+          error: { image: { imageName: { message: "Required" } } }
+        });
       }
     } else {
       const artist = new Artist({
@@ -129,7 +132,10 @@ exports.update_artist = (id, body, file) => {
             };
             updating_function(id, artist, IMAGE_PATH);
           } else {
-            reject({ status: 422, error: { image: { message: "Required" } } });
+            reject({
+              status: 422,
+              error: { image: { imageName: { message: "Required" } } }
+            });
           }
         } else {
           const artist = {
