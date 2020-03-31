@@ -35,12 +35,12 @@ const artist_schema = mongoose.Schema({
     imageAvailability: {
       type: Boolean,
       required: [true, "Required"]
-    },
-
-    imageName: {
-      type: String,
-      unique: true
     }
+  },
+
+  imageName: {
+    type: String,
+    unique: true
   }
 });
 

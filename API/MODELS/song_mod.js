@@ -65,12 +65,11 @@ const songSchema = mongoose.Schema({
     audioAvailability: {
       type: Boolean,
       required: [true, "Required"]
-    },
-
-    audioName: {
-      type: String,
-      unique: true
     }
+  },
+  audioName: {
+    type: String,
+    unique: true
   }
 });
 

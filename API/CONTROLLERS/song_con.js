@@ -35,9 +35,9 @@ exports.save_song = (body, file) => {
           audio: {
             audioPath: file.path,
             audio: process.env.BASE_URL + "/" + file.originalname,
-            audioAvailability: body.audioAvailability,
-            audioName: file.originalname
-          }
+            audioAvailability: body.audioAvailability
+          },
+          audioName: file.originalname
         });
         saving_function(song);
       } else {
@@ -69,7 +69,7 @@ exports.find_songs = () => {
   return new Promise((resolve, reject) => {
     Song.find()
       .select(
-        "_id sinhalaTitle singlishTitle categories song likes type artist audio "
+        "_id sinhalaTitle singlishTitle categories song likes type artist audio audioName"
       )
       .exec()
       .then(result => {
@@ -85,7 +85,7 @@ exports.find_song_by_id = id => {
   return new Promise((resolve, reject) => {
     Song.findById({ _id: id })
       .select(
-        "_id sinhalaTitle singlishTitle categories song likes type artist audio "
+        "_id sinhalaTitle singlishTitle categories song likes type artist audio audioName"
       )
       .exec()
       .then(result => {
@@ -144,9 +144,9 @@ exports.update_song = (id, body, file) => {
               audio: {
                 audioPath: file.path,
                 audio: process.env.BASE_URL + "/" + file.originalname,
-                audioAvailability: body.audioAvailability,
-                audioName: file.originalname
-              }
+                audioAvailability: body.audioAvailability
+              },
+              audioName: file.originalname
             };
             updatin_function(id, song, AUDIO_PATH);
           } else {

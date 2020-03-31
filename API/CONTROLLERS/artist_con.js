@@ -36,9 +36,9 @@ exports.save_artist = (body, file) => {
           image: {
             imagePath: file.path,
             image: process.env.BASE_URL + "/" + file.originalname,
-            imageName: file.originalname,
             imageAvailability: body.imageAvailability
-          }
+          },
+          imageName: file.originalname
         });
         saving_function(artist);
       } else {
@@ -65,7 +65,7 @@ exports.save_artist = (body, file) => {
 exports.find_artist = () => {
   return new Promise((resolve, reject) => {
     Artist.find()
-      .select("_id sinhalaName singlishName period image ")
+      .select("_id sinhalaName singlishName period image imageName")
       .exec()
       .then(result => {
         resolve({ status: 200, data: result });
@@ -79,7 +79,7 @@ exports.find_artist = () => {
 exports.find_artist_by_id = id => {
   return new Promise((resolve, reject) => {
     Artist.findById({ _id: id })
-      .select("_id sinhalaName singlishName period image ")
+      .select("_id sinhalaName singlishName period image imageName")
       .exec()
       .then(result => {
         if (result) {
@@ -126,15 +126,15 @@ exports.update_artist = (id, body, file) => {
               image: {
                 imagePath: file.path,
                 image: process.env.BASE_URL + "/" + file.originalname,
-                imageName: file.originalname,
                 imageAvailability: body.imageAvailability
-              }
+              },
+              imageName: file.originalname
             };
             updating_function(id, artist, IMAGE_PATH);
           } else {
             reject({
               status: 422,
-              error: { image: { imageName: { message: "Required" } } }
+              error: { imageName: { message: "Required" } }
             });
           }
         } else {
