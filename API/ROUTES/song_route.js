@@ -9,7 +9,10 @@ const storage = multer.diskStorage({
     cb(null, "./audios/");
   },
   filename: function(req, file, cb) {
-    cb(null, file.originalname);
+    //Rename the file as song's singlish title with file's orginal name
+    const singlishTitle = req.body.singlishTitle;
+    const AUDIO_NAME = singlishTitle + "_" + file.originalname;
+    cb(null, AUDIO_NAME);
   }
 });
 

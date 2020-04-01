@@ -36,12 +36,12 @@ const artist_schema = mongoose.Schema({
       type: Boolean,
       required: [true, "Required"]
     }
-  },
-
-  imageName: {
-    type: String,
-    unique: true
   }
+
+  // imageName: {
+  //   type: String,
+  //   unique: true
+  // }
 });
 
 artist_schema.plugin(uniqueValidator, { message: "Already exists" });

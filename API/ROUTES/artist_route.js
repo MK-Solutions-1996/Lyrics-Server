@@ -9,7 +9,10 @@ const storage = multer.diskStorage({
     cb(null, "./images/");
   },
   filename: function(req, file, cb) {
-    cb(null, file.originalname);
+    //Rename the file as artist's singlish name with file's orginal name
+    const singlishName = req.body.singlishName;
+    const IMAGE_NAME = singlishName + "_" + file.originalname;
+    cb(null, IMAGE_NAME);
   }
 });
 

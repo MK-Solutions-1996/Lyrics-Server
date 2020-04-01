@@ -4,25 +4,12 @@ const fs = require("fs");
 
 exports.save_song = (body, file) => {
   return new Promise((resolve, reject) => {
-    const saving_function = song => {
-      song
-        .save()
-        .then(() => {
-          resolve({ status: 201, message: "success" });
-        })
-        .catch(err => {
-          //fs.unlinkSync(file.path);
-          const validation_errors = err.errors;
-          if (validation_errors) {
-            reject({ status: 422, error: validation_errors });
-          } else {
-            reject({ status: 500, error: "Server error" + err });
-          }
-        });
-    };
-
     if (body.audioAvailability === "true") {
       if (file) {
+        const singlishTitle = body.singlishTitle;
+        const AUDIO_NAME = singlishTitle + "_" + file.originalname;
+        const AUDIO_PATH = "audios\\" + AUDIO_NAME;
+
         const song = new Song({
           _id: mongoose.Types.ObjectId(),
           sinhalaTitle: body.sinhalaTitle,
@@ -33,20 +20,38 @@ exports.save_song = (body, file) => {
           type: body.type,
           artist: body.artist,
           audio: {
-            audioPath: file.path,
-            audio: process.env.BASE_URL + "/" + file.originalname,
+            audioPath: AUDIO_PATH,
+            audio: process.env.BASE_URL + "/" + AUDIO_NAME,
             audioAvailability: body.audioAvailability
-          },
-          audioName: file.originalname
+          }
         });
-        saving_function(song);
+        song
+          .save()
+          .then(() => {
+            resolve({ status: 201, message: "success" });
+          })
+          .catch(err => {
+            fs.unlinkSync(AUDIO_PATH);
+            const validation_errors = err.errors;
+            if (validation_errors) {
+              reject({ status: 422, error: validation_errors });
+            } else {
+              reject({ status: 500, error: "Server error" + err });
+            }
+          });
       } else {
         reject({
           status: 422,
-          error: { audioName: { message: "Required" } }
+          error: { audio: { message: "Required" } }
         });
       }
     } else {
+      if (file) {
+        const singlishTitle = body.singlishTitle;
+        const AUDIO_NAME = singlishTitle + "_" + file.originalname;
+        const AUDIO_PATH = "audios\\" + AUDIO_NAME;
+        fs.unlinkSync(AUDIO_PATH);
+      }
       const song = new Song({
         _id: mongoose.Types.ObjectId(),
         sinhalaTitle: body.sinhalaTitle,
@@ -60,7 +65,19 @@ exports.save_song = (body, file) => {
           audioAvailability: body.audioAvailability
         }
       });
-      saving_function(song);
+      song
+        .save()
+        .then(() => {
+          resolve({ status: 201, message: "success" });
+        })
+        .catch(err => {
+          const validation_errors = err.errors;
+          if (validation_errors) {
+            reject({ status: 422, error: validation_errors });
+          } else {
+            reject({ status: 500, error: "Server error" + err });
+          }
+        });
     }
   });
 };
@@ -105,7 +122,7 @@ exports.find_song_by_id = id => {
  * Returns the path of the audio file which is stored in the DB as 'audioPath'.
  * By using that audio path, the particuler audio file can be deleted from the file structure.
  */
-const get_audio_path = id => {
+const get_previous_audio_path = id => {
   return new Promise((resolve, reject) => {
     Song.findById({ _id: id })
       .exec()
@@ -128,11 +145,15 @@ const get_audio_path = id => {
 */
 exports.update_song = (id, body, file) => {
   return new Promise((resolve, reject) => {
-    get_audio_path(id)
+    get_previous_audio_path(id)
       .then(path => {
-        const AUDIO_PATH = path;
+        const PREVIOUS_AUDIO_PATH = path;
         if (body.audioAvailability === "true") {
           if (file) {
+            const singlishTitle = body.singlishTitle;
+            const AUDIO_NAME = singlishTitle + "_" + file.originalname;
+            const AUDIO_PATH = "audios\\" + AUDIO_NAME;
+
             const song = {
               sinhalaTitle: body.sinhalaTitle,
               singlishTitle: body.singlishTitle,
@@ -142,20 +163,83 @@ exports.update_song = (id, body, file) => {
               type: body.type,
               artist: body.artist,
               audio: {
-                audioPath: file.path,
-                audio: process.env.BASE_URL + "/" + file.originalname,
+                audioPath: AUDIO_PATH,
+                audio: process.env.BASE_URL + "/" + AUDIO_NAME,
                 audioAvailability: body.audioAvailability
-              },
-              audioName: file.originalname
+              }
             };
-            updatin_function(id, song, AUDIO_PATH);
+            Song.updateOne(
+              { _id: id },
+              { $set: song },
+              { runValidators: true, context: "query" }
+            )
+              .exec()
+              .then(result => {
+                const updated_count = result.n;
+                if (updated_count === 0) {
+                  reject({ status: 404, error: "No id found" });
+                } else {
+                  if (PREVIOUS_AUDIO_PATH === "default") {
+                    resolve({ status: 201, message: "success" });
+                  } else if (PREVIOUS_AUDIO_PATH === AUDIO_PATH) {
+                    resolve({ status: 201, message: "success" });
+                  } else {
+                    fs.unlinkSync(PREVIOUS_AUDIO_PATH);
+                    resolve({ status: 201, message: "success" });
+                  }
+                }
+              })
+              .catch(err => {
+                fs.unlinkSync(AUDIO_PATH);
+                const validation_errors = err.errors;
+                if (validation_errors) {
+                  reject({ status: 422, error: validation_errors });
+                } else {
+                  reject({ status: 500, error: "Server error" });
+                }
+              });
           } else {
-            reject({
-              status: 422,
-              error: { audioName: { message: "Required" } }
-            });
+            const song = {
+              sinhalaTitle: body.sinhalaTitle,
+              singlishTitle: body.singlishTitle,
+              categories: body.categories,
+              song: body.song,
+              likes: body.likes,
+              type: body.type,
+              artist: body.artist
+            };
+
+            Song.updateOne(
+              { _id: id },
+              { $set: song },
+              { runValidators: true, context: "query" }
+            )
+              .exec()
+              .then(result => {
+                const updated_count = result.n;
+                if (updated_count === 0) {
+                  reject({ status: 404, error: "No id found" });
+                } else {
+                  resolve({ status: 201, message: "success" });
+                }
+              })
+              .catch(err => {
+                const validation_errors = err.errors;
+                if (validation_errors) {
+                  reject({ status: 422, error: validation_errors });
+                } else {
+                  reject({ status: 500, error: "Server error" });
+                }
+              });
           }
         } else {
+          if (file) {
+            const singlishTitle = body.singlishTitle;
+            const AUDIO_NAME = singlishTitle + "_" + file.originalname;
+            const AUDIO_PATH = "audios\\" + AUDIO_NAME;
+            fs.unlinkSync(AUDIO_PATH);
+          }
+
           const song = {
             sinhalaTitle: body.sinhalaTitle,
             singlishTitle: body.singlishTitle,
@@ -168,52 +252,42 @@ exports.update_song = (id, body, file) => {
               audioAvailability: body.audioAvailability
             }
           };
-          updatin_function(id, song, AUDIO_PATH);
+          Song.updateOne(
+            { _id: id },
+            { $set: song },
+            { runValidators: true, context: "query" }
+          )
+            .exec()
+            .then(result => {
+              const updated_count = result.n;
+              if (updated_count === 0) {
+                reject({ status: 404, error: "No id found" });
+              } else {
+                resolve({ status: 201, message: "success" });
+              }
+            })
+            .catch(err => {
+              const validation_errors = err.errors;
+              if (validation_errors) {
+                reject({ status: 422, error: validation_errors });
+              } else {
+                reject({ status: 500, error: "Server error" });
+              }
+            });
         }
       })
       .catch(err => {
         reject({ status: err.status, error: err.error });
       });
-
-    const updatin_function = (id, song, AUDIO_PATH) => {
-      Song.updateOne(
-        { _id: id },
-        { $set: song },
-        { runValidators: true, context: "query" }
-      )
-        .exec()
-        .then(result => {
-          const updated_count = result.n;
-          if (updated_count === 0) {
-            reject({ status: 404, error: "No id found" });
-          } else {
-            if (AUDIO_PATH === "default") {
-              resolve({ status: 201, message: "success" });
-            } else if (AUDIO_PATH === song.audio.audioPath) {
-              resolve({ status: 201, message: "success" });
-            } else {
-              fs.unlinkSync(AUDIO_PATH);
-              resolve({ status: 201, message: "success" });
-            }
-          }
-        })
-        .catch(err => {
-          const validation_errors = err.errors;
-          if (validation_errors) {
-            reject({ status: 422, error: validation_errors });
-          } else {
-            reject({ status: 500, error: "Server error" });
-          }
-        });
-    };
   });
 };
 
 exports.remove_song = id => {
   return new Promise((resolve, reject) => {
-    get_audio_path(id)
+    get_previous_audio_path(id)
       .then(path => {
-        const AUDIO_PATH = path;
+        const PREVIOUS_AUDIO_PATH = path;
+        console.log("PREVIOUS_AUDIO_PATH:", PREVIOUS_AUDIO_PATH);
         Song.deleteOne({ _id: id })
           .exec()
           .then(result => {
@@ -221,11 +295,15 @@ exports.remove_song = id => {
             if (delete_count === 0) {
               reject({ status: 404, error: "No id found" });
             } else {
-              if (AUDIO_PATH === "default") {
+              if (PREVIOUS_AUDIO_PATH === "default") {
                 resolve({ status: 200, message: "success" });
               } else {
-                fs.unlinkSync(AUDIO_PATH);
-                resolve({ status: 200, message: "success" });
+                try {
+                  fs.unlinkSync(PREVIOUS_AUDIO_PATH);
+                  resolve({ status: 200, message: "success" });
+                } catch (error) {
+                  resolve({ status: 200, message: "success" });
+                }
               }
             }
           })
