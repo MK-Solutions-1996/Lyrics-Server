@@ -204,7 +204,7 @@ exports.update_song = (id, body, file) => {
                   } else if (PREVIOUS_BLOB_NAME === BLOB_NAME) {
                     resolve({ status: 201, message: "success" });
                   } else {
-                    deleteImageFile(BLOB_NAME);
+                    deleteImageFile(PREVIOUS_BLOB_NAME);
                     resolve({ status: 201, message: "success" });
                   }
                 }

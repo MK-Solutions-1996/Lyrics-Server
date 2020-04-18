@@ -186,7 +186,7 @@ exports.update_artist = (id, body, file) => {
                   } else if (BLOB_NAME === PREVIOUS_BLOB_NAME) {
                     resolve({ status: 201, message: "success" });
                   } else {
-                    deleteImageFile(BLOB_NAME);
+                    deleteImageFile(PREVIOUS_BLOB_NAME);
                     resolve({ status: 201, message: "success" });
                   }
                 }
