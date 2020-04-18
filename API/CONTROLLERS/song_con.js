@@ -25,12 +25,13 @@ const deleteImageFile = (blobName) => {
 
 exports.save_song = (body, file) => {
 
-  const BLOB_NAME = file.blobName;
-  const URL = file.url;
-
   return new Promise((resolve, reject) => {
     if (body.audioAvailability === "true") {
       if (file) {
+
+
+        const BLOB_NAME = file.blobName;
+        const URL = file.url;
 
         const song = new Song({
           _id: mongoose.Types.ObjectId(),
@@ -69,6 +70,7 @@ exports.save_song = (body, file) => {
       }
     } else {
       if (file) {
+        const BLOB_NAME = file.blobName;
         deleteImageFile(BLOB_NAME);
       }
       const song = new Song({
@@ -164,15 +166,16 @@ const get_previous_audio_path = id => {
 */
 exports.update_song = (id, body, file) => {
 
-  const BLOB_NAME = file.blobName;
-  const URL = file.url;
-
   return new Promise((resolve, reject) => {
     get_previous_audio_path(id)
       .then(path => {
         const PREVIOUS_BLOB_NAME = path;
         if (body.audioAvailability === "true") {
           if (file) {
+
+
+            const BLOB_NAME = file.blobName;
+            const URL = file.url;
 
             const song = {
               sinhalaTitle: body.sinhalaTitle,
@@ -254,6 +257,7 @@ exports.update_song = (id, body, file) => {
           }
         } else {
           if (file) {
+            const BLOB_NAME = file.blobName;
             deleteImageFile(BLOB_NAME);
           }
 

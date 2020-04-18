@@ -30,12 +30,13 @@ const deleteImageFile = (blobName) => {
 
 exports.save_artist = (body, file) => {
 
-  const BLOB_NAME = file.blobName;
-  const URL = file.url;
-
   return new Promise((resolve, reject) => {
     if (body.imageAvailability === "true") {
       if (file) {
+
+        const BLOB_NAME = file.blobName;
+        const URL = file.url;
+
         const artist = new Artist({
           _id: mongoose.Types.ObjectId(),
           sinhalaName: body.sinhalaName,
@@ -69,6 +70,7 @@ exports.save_artist = (body, file) => {
       }
     } else {
       if (file) {
+        const BLOB_NAME = file.blobName;
         deleteImageFile(BLOB_NAME);
       }
       const artist = new Artist({
@@ -149,8 +151,7 @@ const get_previous_image_path = id => {
 */
 exports.update_artist = (id, body, file) => {
 
-  const BLOB_NAME = file.blobName;
-  const URL = file.url;
+
 
   return new Promise((resolve, reject) => {
     get_previous_image_path(id)
@@ -158,6 +159,10 @@ exports.update_artist = (id, body, file) => {
         const PREVIOUS_BLOB_NAME = path; // path means previous image's blobName
         if (body.imageAvailability === "true") {
           if (file) {
+
+            const BLOB_NAME = file.blobName;
+            const URL = file.url;
+
             const artist = {
               sinhalaName: body.sinhalaName,
               singlishName: body.singlishName,
@@ -232,6 +237,7 @@ exports.update_artist = (id, body, file) => {
           }
         } else {
           if (file) {
+            const BLOB_NAME = file.blobName;
             deleteImageFile(BLOB_NAME);
           }
           const artist = {
