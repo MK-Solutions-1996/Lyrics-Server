@@ -3,20 +3,33 @@ const router = express.Router();
 const ArtistController = require("../CONTROLLERS/artist_con");
 const CheckApi = require("../MIDDLEWARES/check_api");
 const multer = require("multer");
+const MulterAzureStorage = require('multer-azure-storage');
 
-const storage = multer.diskStorage({
-  destination: function(req, file, cb) {
-    cb(null, "./images/");
-  },
-  filename: function(req, file, cb) {
-    //Rename the file as artist's singlish name with file's orginal name
-    const singlishName = req.body.singlishName;
-    const IMAGE_NAME = singlishName + "_" + file.originalname;
-    cb(null, IMAGE_NAME);
-  }
+
+const con = 'DefaultEndpointsProtocol=https;AccountName=lyricsassetstore;AccountKey=I0y9yB+3LtZO1Lb7wapFNTkYS1hMzGlQSzRiWKkczPqZgeKqjD29IwuDSNUrOFmVY+NtWCgfamCJ/bk0Hae3ZQ==;EndpointSuffix=core.windows.net';
+
+var upload = multer({
+  storage: new MulterAzureStorage({
+    azureStorageConnectionString: con,
+    containerName: 'images',
+    containerSecurity: 'container'
+  })
 });
 
-const upload = multer({ storage: storage });
+
+// const storage = multer.diskStorage({
+//   destination: function(req, file, cb) {
+//     cb(null, "./images/");
+//   },
+//   filename: function(req, file, cb) {
+//     //Rename the file as artist's singlish name with file's orginal name
+//     const singlishName = req.body.singlishName;
+//     const IMAGE_NAME = singlishName + "_" + file.originalname;
+//     cb(null, IMAGE_NAME);
+//   }
+// });
+
+//const upload = multer({ storage: storage });
 
 router.post("/", [CheckApi, upload.single("image")], (req, res, next) => {
   const body = req.body;

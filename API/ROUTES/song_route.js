@@ -3,20 +3,33 @@ const router = express.Router();
 const SongController = require("../CONTROLLERS/song_con");
 const CheckAPI = require("../MIDDLEWARES/check_api");
 const multer = require("multer");
+const MulterAzureStorage = require('multer-azure-storage');
 
-const storage = multer.diskStorage({
-  destination: function(req, file, cb) {
-    cb(null, "./audios/");
-  },
-  filename: function(req, file, cb) {
-    //Rename the file as song's singlish title with file's orginal name
-    const singlishTitle = req.body.singlishTitle;
-    const AUDIO_NAME = singlishTitle + "_" + file.originalname;
-    cb(null, AUDIO_NAME);
-  }
+// const storage = multer.diskStorage({
+//   destination: function(req, file, cb) {
+//     cb(null, "./audios/");
+//   },
+//   filename: function(req, file, cb) {
+//     //Rename the file as song's singlish title with file's orginal name
+//     const singlishTitle = req.body.singlishTitle;
+//     const AUDIO_NAME = singlishTitle + "_" + file.originalname;
+//     cb(null, AUDIO_NAME);
+//   }
+// });
+
+// const upload = multer({ storage: storage });
+
+
+const con = 'DefaultEndpointsProtocol=https;AccountName=lyricsassetstore;AccountKey=I0y9yB+3LtZO1Lb7wapFNTkYS1hMzGlQSzRiWKkczPqZgeKqjD29IwuDSNUrOFmVY+NtWCgfamCJ/bk0Hae3ZQ==;EndpointSuffix=core.windows.net';
+
+var upload = multer({
+  storage: new MulterAzureStorage({
+    azureStorageConnectionString: con,
+    containerName: 'audios',
+    containerSecurity: 'container'
+  })
 });
 
-const upload = multer({ storage: storage });
 
 router.post("/", [CheckAPI, upload.single("audio")], (req, res, next) => {
   const body = req.body;

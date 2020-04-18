@@ -1,6 +1,27 @@
 const mongoose = require("mongoose");
 const Artist = require("../MODELS/artist_mod");
 const fs = require("fs");
+const azureStrorage = require('azure-storage');
+
+const con = 'DefaultEndpointsProtocol=https;AccountName=lyricsassetstore;AccountKey=I0y9yB+3LtZO1Lb7wapFNTkYS1hMzGlQSzRiWKkczPqZgeKqjD29IwuDSNUrOFmVY+NtWCgfamCJ/bk0Hae3ZQ==;EndpointSuffix=core.windows.net';
+const blobService = azureStrorage.createBlobService(con);
+
+const deleteImageFile = (blobName) => {
+  console.log('blobName:', blobName);
+  blobService.deleteBlobIfExists('images', blobName, (err, result) => {
+    if (err) {
+      console.log('err:', err);
+    }
+    if (result) {
+      console.log('deleted');
+    }
+    else {
+      console.log('not deleted');
+    }
+  });
+}
+
+
 
 /* 
     Check the image file is exist, If so save the data to database as well as image file
@@ -8,21 +29,21 @@ const fs = require("fs");
 */
 
 exports.save_artist = (body, file) => {
+
+  const BLOB_NAME = file.blobName;
+  const URL = file.url;
+
   return new Promise((resolve, reject) => {
     if (body.imageAvailability === "true") {
       if (file) {
-        const singlishName = body.singlishName;
-        const IMAGE_NAME = singlishName + "_" + file.originalname;
-        const IMAGE_PATH = "images\\" + IMAGE_NAME;
-
         const artist = new Artist({
           _id: mongoose.Types.ObjectId(),
           sinhalaName: body.sinhalaName,
           singlishName: body.singlishName,
           period: body.period,
           image: {
-            imagePath: IMAGE_PATH,
-            image: process.env.BASE_URL + "/" + IMAGE_NAME,
+            imagePath: BLOB_NAME,
+            image: URL,
             imageAvailability: body.imageAvailability
           }
         });
@@ -32,7 +53,7 @@ exports.save_artist = (body, file) => {
             resolve({ status: 201, message: "success" });
           })
           .catch(err => {
-            fs.unlinkSync(IMAGE_PATH);
+            deleteImageFile(BLOB_NAME);
             const validation_errors = err.errors;
             if (validation_errors) {
               reject({ status: 422, error: validation_errors });
@@ -48,10 +69,7 @@ exports.save_artist = (body, file) => {
       }
     } else {
       if (file) {
-        const singlishName = body.singlishName;
-        const IMAGE_NAME = singlishName + "_" + file.originalname;
-        const IMAGE_PATH = "images\\" + IMAGE_NAME;
-        fs.unlinkSync(IMAGE_PATH);
+        deleteImageFile(BLOB_NAME);
       }
       const artist = new Artist({
         _id: mongoose.Types.ObjectId(),
@@ -130,23 +148,23 @@ const get_previous_image_path = id => {
     if the image image file is not in request other data will be updated.
 */
 exports.update_artist = (id, body, file) => {
+
+  const BLOB_NAME = file.blobName;
+  const URL = file.url;
+
   return new Promise((resolve, reject) => {
     get_previous_image_path(id)
       .then(path => {
-        const PREVIOUS_IMAGE_PATH = path;
+        const PREVIOUS_BLOB_NAME = path; // path means previous image's blobName
         if (body.imageAvailability === "true") {
           if (file) {
-            const singlishName = body.singlishName;
-            const IMAGE_NAME = singlishName + "_" + file.originalname;
-            const IMAGE_PATH = "images\\" + IMAGE_NAME;
-
             const artist = {
               sinhalaName: body.sinhalaName,
               singlishName: body.singlishName,
               period: body.period,
               image: {
-                imagePath: IMAGE_PATH,
-                image: process.env.BASE_URL + "/" + IMAGE_NAME,
+                imagePath: BLOB_NAME,
+                image: URL,
                 imageAvailability: body.imageAvailability
               }
             };
@@ -160,21 +178,21 @@ exports.update_artist = (id, body, file) => {
               .then(result => {
                 const updated_count = result.n;
                 if (updated_count === 0) {
-                  fs.unlinkSync(IMAGE_PATH);
+                  deleteImageFile(BLOB_NAME);
                   reject({ status: 404, error: "No id found" });
                 } else {
-                  if (PREVIOUS_IMAGE_PATH === "default") {
+                  if (PREVIOUS_BLOB_NAME === "default") {
                     resolve({ status: 201, message: "success" });
-                  } else if (IMAGE_PATH === PREVIOUS_IMAGE_PATH) {
+                  } else if (BLOB_NAME === PREVIOUS_BLOB_NAME) {
                     resolve({ status: 201, message: "success" });
                   } else {
-                    fs.unlinkSync(PREVIOUS_IMAGE_PATH);
+                    deleteImageFile(BLOB_NAME);
                     resolve({ status: 201, message: "success" });
                   }
                 }
               })
               .catch(err => {
-                fs.unlinkSync(IMAGE_PATH);
+                deleteImageFile(BLOB_NAME);
                 const validation_errors = err.errors;
                 if (validation_errors) {
                   reject({ status: 422, error: validation_errors });
@@ -214,10 +232,7 @@ exports.update_artist = (id, body, file) => {
           }
         } else {
           if (file) {
-            const singlishName = body.singlishName;
-            const IMAGE_NAME = singlishName + "_" + file.originalname;
-            const IMAGE_PATH = "images\\" + IMAGE_NAME;
-            fs.unlinkSync(IMAGE_PATH);
+            deleteImageFile(BLOB_NAME);
           }
           const artist = {
             sinhalaName: body.sinhalaName,
@@ -261,7 +276,7 @@ exports.romove_artist = id => {
   return new Promise((resolve, reject) => {
     get_previous_image_path(id)
       .then(path => {
-        const PREVIOUS_IMAGE_PATH = path;
+        const PREVIOUS_BLOB_NAME = path;
         Artist.deleteOne({ _id: id })
           .exec()
           .then(result => {
@@ -269,11 +284,11 @@ exports.romove_artist = id => {
             if (removed_count === 0) {
               reject({ status: 404, error: "No id found" });
             } else {
-              if (PREVIOUS_IMAGE_PATH === "default") {
+              if (PREVIOUS_BLOB_NAME === "default") {
                 resolve({ status: 200, message: "success" });
               } else {
                 try {
-                  fs.unlinkSync(PREVIOUS_IMAGE_PATH);
+                  deleteImageFile(PREVIOUS_BLOB_NAME);
                   resolve({ status: 200, message: "success" });
                 } catch (error) {
                   resolve({ status: 200, message: "success" });

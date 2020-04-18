@@ -1,14 +1,36 @@
 const mongoose = require("mongoose");
 const Song = require("../MODELS/song_mod");
 const fs = require("fs");
+const azureStrorage = require('azure-storage');
+
+const con = 'DefaultEndpointsProtocol=https;AccountName=lyricsassetstore;AccountKey=I0y9yB+3LtZO1Lb7wapFNTkYS1hMzGlQSzRiWKkczPqZgeKqjD29IwuDSNUrOFmVY+NtWCgfamCJ/bk0Hae3ZQ==;EndpointSuffix=core.windows.net';
+const blobService = azureStrorage.createBlobService(con);
+
+const deleteImageFile = (blobName) => {
+  console.log('blobName:', blobName);
+  blobService.deleteBlobIfExists('audios', blobName, (err, result) => {
+    if (err) {
+      console.log('err:', err);
+    }
+    if (result) {
+      console.log('deleted');
+    }
+    else {
+      console.log('not deleted');
+    }
+  });
+}
+
+
 
 exports.save_song = (body, file) => {
+
+  const BLOB_NAME = file.blobName;
+  const URL = file.url;
+
   return new Promise((resolve, reject) => {
     if (body.audioAvailability === "true") {
       if (file) {
-        const singlishTitle = body.singlishTitle;
-        const AUDIO_NAME = singlishTitle + "_" + file.originalname;
-        const AUDIO_PATH = "audios\\" + AUDIO_NAME;
 
         const song = new Song({
           _id: mongoose.Types.ObjectId(),
@@ -20,8 +42,8 @@ exports.save_song = (body, file) => {
           type: body.type,
           artist: body.artist,
           audio: {
-            audioPath: AUDIO_PATH,
-            audio: process.env.BASE_URL + "/" + AUDIO_NAME,
+            audioPath: BLOB_NAME,
+            audio: URL,
             audioAvailability: body.audioAvailability
           }
         });
@@ -31,7 +53,7 @@ exports.save_song = (body, file) => {
             resolve({ status: 201, message: "success" });
           })
           .catch(err => {
-            fs.unlinkSync(AUDIO_PATH);
+            deleteImageFile(BLOB_NAME);
             const validation_errors = err.errors;
             if (validation_errors) {
               reject({ status: 422, error: validation_errors });
@@ -47,10 +69,7 @@ exports.save_song = (body, file) => {
       }
     } else {
       if (file) {
-        const singlishTitle = body.singlishTitle;
-        const AUDIO_NAME = singlishTitle + "_" + file.originalname;
-        const AUDIO_PATH = "audios\\" + AUDIO_NAME;
-        fs.unlinkSync(AUDIO_PATH);
+        deleteImageFile(BLOB_NAME);
       }
       const song = new Song({
         _id: mongoose.Types.ObjectId(),
@@ -144,15 +163,16 @@ const get_previous_audio_path = id => {
         - If AUDIO_PATH equals to 'default', then non of the file will be deleted. 
 */
 exports.update_song = (id, body, file) => {
+
+  const BLOB_NAME = file.blobName;
+  const URL = file.url;
+
   return new Promise((resolve, reject) => {
     get_previous_audio_path(id)
       .then(path => {
-        const PREVIOUS_AUDIO_PATH = path;
+        const PREVIOUS_BLOB_NAME = path;
         if (body.audioAvailability === "true") {
           if (file) {
-            const singlishTitle = body.singlishTitle;
-            const AUDIO_NAME = singlishTitle + "_" + file.originalname;
-            const AUDIO_PATH = "audios\\" + AUDIO_NAME;
 
             const song = {
               sinhalaTitle: body.sinhalaTitle,
@@ -163,8 +183,8 @@ exports.update_song = (id, body, file) => {
               type: body.type,
               artist: body.artist,
               audio: {
-                audioPath: AUDIO_PATH,
-                audio: process.env.BASE_URL + "/" + AUDIO_NAME,
+                audioPath: BLOB_NAME,
+                audio: URL,
                 audioAvailability: body.audioAvailability
               }
             };
@@ -179,18 +199,18 @@ exports.update_song = (id, body, file) => {
                 if (updated_count === 0) {
                   reject({ status: 404, error: "No id found" });
                 } else {
-                  if (PREVIOUS_AUDIO_PATH === "default") {
+                  if (PREVIOUS_BLOB_NAME === "default") {
                     resolve({ status: 201, message: "success" });
-                  } else if (PREVIOUS_AUDIO_PATH === AUDIO_PATH) {
+                  } else if (PREVIOUS_BLOB_NAME === BLOB_NAME) {
                     resolve({ status: 201, message: "success" });
                   } else {
-                    fs.unlinkSync(PREVIOUS_AUDIO_PATH);
+                    deleteImageFile(BLOB_NAME);
                     resolve({ status: 201, message: "success" });
                   }
                 }
               })
               .catch(err => {
-                fs.unlinkSync(AUDIO_PATH);
+                deleteImageFile(BLOB_NAME);
                 const validation_errors = err.errors;
                 if (validation_errors) {
                   reject({ status: 422, error: validation_errors });
@@ -234,10 +254,7 @@ exports.update_song = (id, body, file) => {
           }
         } else {
           if (file) {
-            const singlishTitle = body.singlishTitle;
-            const AUDIO_NAME = singlishTitle + "_" + file.originalname;
-            const AUDIO_PATH = "audios\\" + AUDIO_NAME;
-            fs.unlinkSync(AUDIO_PATH);
+            deleteImageFile(BLOB_NAME);
           }
 
           const song = {
@@ -286,8 +303,8 @@ exports.remove_song = id => {
   return new Promise((resolve, reject) => {
     get_previous_audio_path(id)
       .then(path => {
-        const PREVIOUS_AUDIO_PATH = path;
-        console.log("PREVIOUS_AUDIO_PATH:", PREVIOUS_AUDIO_PATH);
+        const PREVIOUS_BLOB_NAME = path;
+        console.log("PREVIOUS_BLOB_NAME:", PREVIOUS_BLOB_NAME);
         Song.deleteOne({ _id: id })
           .exec()
           .then(result => {
@@ -295,11 +312,11 @@ exports.remove_song = id => {
             if (delete_count === 0) {
               reject({ status: 404, error: "No id found" });
             } else {
-              if (PREVIOUS_AUDIO_PATH === "default") {
+              if (PREVIOUS_BLOB_NAME === "default") {
                 resolve({ status: 200, message: "success" });
               } else {
                 try {
-                  fs.unlinkSync(PREVIOUS_AUDIO_PATH);
+                  deleteImageFile(PREVIOUS_BLOB_NAME);
                   resolve({ status: 200, message: "success" });
                 } catch (error) {
                   resolve({ status: 200, message: "success" });

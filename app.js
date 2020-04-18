@@ -8,8 +8,7 @@ const router = require("./API/router");
 
 const app = express();
 
-app.use(express.static("images"));
-app.use(express.static("audios"));
+
 
 app.use(bodyparser.urlencoded({ extended: false }));
 app.use(bodyparser.json());
@@ -32,6 +31,10 @@ app.use(cors());
 app.use(morgan("dev"));
 
 dotenv.config(); // configure the .env file
+
+
+
+
 mongoose.connect(
   process.env.MONGO_CONNECTION,
   {
@@ -62,5 +65,7 @@ var server = app.listen(PORT, () => {
 
   console.log("***Server listening at http://%s:%s***", host, port);
 });
+
+
 
 module.exports = app;
