@@ -53,6 +53,19 @@ router.get("/", CheckAPI, (req, res, next) => {
     });
 });
 
+router.get("/limit/:number", CheckAPI, (req, res, next) => {
+  const limit = parseInt(req.params.number);
+  SongController.find_songs_limited(limit)
+    .then(result => {
+      res.status(result.status).json(result.data);
+    })
+    .catch(err => {
+      res.status(err.status).json(err.error);
+    });
+});
+
+
+
 router.get("/:id", CheckAPI, (req, res, next) => {
   const id = req.params.id;
   SongController.find_song_by_id(id)
@@ -87,5 +100,28 @@ router.delete("/:id", CheckAPI, (req, res, next) => {
       res.status(err.status).json(err.error);
     });
 });
+
+
+router.patch("/like/:id", CheckAPI, (req, res, next) => {
+  const id = req.params.id;
+  SongController.update_song_like(id)
+    .then(result => {
+      res.status(result.status).json(result.message);
+    })
+    .catch(err => {
+      res.status(err.status).json(err.error);
+    })
+});
+
+router.patch("/unlike/:id", CheckAPI, (req, res, next) => {
+  const id = req.params.id;
+  SongController.update_song_unlike(id)
+    .then(result => {
+      res.status(result.status).json(result.message);
+    })
+    .catch(err => {
+      res.status(err.status).json(err.error);
+    })
+})
 
 module.exports = router;

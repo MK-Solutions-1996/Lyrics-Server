@@ -109,6 +109,7 @@ exports.find_songs = () => {
       .select(
         "_id sinhalaTitle singlishTitle categories song likes type artist audio audioName"
       )
+      .sort('-likes')
       .exec()
       .then(result => {
         resolve({ status: 200, data: result });
@@ -118,6 +119,25 @@ exports.find_songs = () => {
       });
   });
 };
+
+exports.find_songs_limited = (limit) => {
+  return new Promise((resolve, reject) => {
+    Song.find()
+      .sort('-likes')
+      .limit(limit)
+      .select(
+        "_id sinhalaTitle singlishTitle categories song likes type artist audio audioName"
+      )
+      .exec()
+      .then(result => {
+        resolve({ status: 200, data: result });
+      })
+      .catch(() => {
+        reject({ status: 500, error: "Server error" });
+      });
+  })
+
+}
 
 exports.find_song_by_id = id => {
   return new Promise((resolve, reject) => {
@@ -337,3 +357,32 @@ exports.remove_song = id => {
       });
   });
 };
+
+
+exports.update_song_like = (id) => {
+  return new Promise((resolve, reject) => {
+    Song.findOneAndUpdate({ _id: id }, { $inc: { likes: 1 } })
+      .exec()
+      .then(() => {
+        resolve({ status: 201, message: "success" });
+      })
+      .catch(() => {
+        reject({ status: 500, error: "Server error" });
+      })
+  })
+}
+
+
+
+exports.update_song_unlike = (id) => {
+  return new Promise((resolve, reject) => {
+    Song.findOneAndUpdate({ _id: id }, { $inc: { likes: -1 } })
+      .exec()
+      .then(() => {
+        resolve({ status: 201, message: "success" });
+      })
+      .catch(() => {
+        reject({ status: 500, error: "Server error" });
+      })
+  })
+}
